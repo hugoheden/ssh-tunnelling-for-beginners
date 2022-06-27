@@ -108,7 +108,7 @@ ssh -L 0.0.0.0:9000:some-host:5000  myuser@ssh-server
 ssh -R 0.0.0.0:9000:some-host:5000  myuser@ssh-server
 ----
 
-Whether this works depends on ssh-configuration (an option named GatewayPorts). If it works, it allows connections from other hosts than the one that has the start of the ssh-tunnel to use the ssh-tunnel. If "localhost" is enough given the use-case at hand, it should probably be used (it might be considered more secure).
+Whether this works depends on ssh-configuration (an option named "GatewayPorts"). If it works, it allows connections from other hosts than the one that has the start of the ssh-tunnel to use the ssh-tunnel. If "localhost" is enough given the use-case at hand, it should probably be used (it might be considered more secure).
 
 It is common to see the bind address specification left out:
 
@@ -116,7 +116,7 @@ It is common to see the bind address specification left out:
 ssh -L 9000:some-host:5000  myuser@ssh-server
 ----
 
-What this means (`localhost` or `0.0.0.0`) might depend on configuration, but it is not uncommon for this to mean that "localhost" is implicitly used. (Some people prefer to spell it out in order to be more explicit.)
+What this means (`localhost` or `0.0.0.0`) might depend on configuration (an option named "GatewayPorts"), but it is not uncommon for this to mean that "localhost" is implicitly used. (Some people prefer to spell it out in order to be more explicit.)
 
 == The end of the tunnel
 
@@ -152,7 +152,7 @@ ssh -nNT -L localhost:9000:some-host:5000 myuser@ssh-server
 
 #TODO#
 
-== Excersises
+== Exercises
 
 #TODO use http server and curl client in examples, to get rid of nc cruft#. Example server: nc -lk -p 5000 -e sh -c "echo 'HTTP/1.1 200 OK'; echo 'Connection: close'; echo ; echo 'hello' ; while read -t 0.01 IGNORED_INPUT ; do : ; done ; "
 
