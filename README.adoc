@@ -26,7 +26,7 @@ Keywords: ssh, tunnel, port-forwarding, local port-forwarding, remote port-forwa
 
 == ssh - client and server
 
-We have a local host, say "ssh-client", on which you can use ssh. And we have a remote host, say "ssh-server", to which you can login using say "myuser" and "password". With regular ssh-usage, you would login from "ssh-client" to  "ssh-server" (and get a shell there) using:
+We have a local host, say "ssh-client", on which you can use ssh. And we have a remote host, say "ssh-server", to which you can log in using say "myuser" and "password". With regular ssh-usage, you would log in from "ssh-client" to  "ssh-server" (and get a shell there) using:
 
 ----
 ssh myuser@ssh-server
@@ -243,21 +243,19 @@ This does not affect where the tunnel starts or ends - it is the ssh-client and 
 We will use docker and docker-compose to set up some hosts to experiment with.
 
 * `ssh-client` - the host on which we will create various ssh-tunnels
-** also runs a http server process that can act as final destination
+** also runs a http server process (port 5000) that can act as final destination
 ** in some cases, we will try to "use" the ssh-tunnel from here
 * `ssh-server` - the ssh server that will take part in tunnel creation
-** also runs a http server process that can act as final destination
+** also runs a http server process (port 5000) that can act as final destination
 ** in some cases, we will try to "use" the ssh-tunnel from here
-* `some-server` - a http server that can act as final destination
+* `some-server` - runs a http server (port 5000) that can act as final destination
 * ssh-jumphost - a host that can be used as an ssh-jumphost
 * `test-client` - a host from which we can use ssh tunnels
 ** in some cases, we will try to "use" the ssh-tunnel from here
 
+Start the whole thing using:
 ----
 docker-compose up -d
-
-#start some http server processes that can act as final destination:
-sh start-some-server-processes.sh
 ----
 
 I might be convenient to open 4 terminals/shells:
@@ -271,7 +269,7 @@ In your (main work) shell, "enter" the ssh-client.
 ----
 docker-compose exec ssh-client bash
 
-# our environment with the docker-containers is limited,
+#our environment with the docker-containers is limited,
 # ssh needs the -4 flag. (Without it, there will be warning
 # messages emitted when creating tunnels, saying stuff like
 # "bind [::1]:9000: Address not available")

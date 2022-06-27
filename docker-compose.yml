@@ -2,8 +2,12 @@ version: "3.3"
 services:
   ssh-client:
     image: lscr.io/linuxserver/openssh-server:latest
+    hostname: ssh-client
+    volumes:
+      - ./init-config:/config/custom-cont-init.d
   ssh-server:
     image: lscr.io/linuxserver/openssh-server:latest
+    hostname: ssh-server
     volumes:
       - ./init-config:/config/custom-cont-init.d
     environment:
@@ -15,8 +19,12 @@ services:
       - USER_PASSWORD=password
   some-server:
     image: lscr.io/linuxserver/openssh-server:latest
+    hostname: some-server
+    volumes:
+      - ./init-config:/config/custom-cont-init.d
   ssh-jumphost:
     image: lscr.io/linuxserver/openssh-server:latest
+    hostname: ssh-jumphost
     volumes:
       - ./init-config:/config/custom-cont-init.d
     environment:
@@ -28,3 +36,6 @@ services:
       - USER_PASSWORD=password
   test-client:
     image: lscr.io/linuxserver/openssh-server:latest
+    hostname: test-client
+    volumes:
+      - ./init-config:/config/custom-cont-init.d
