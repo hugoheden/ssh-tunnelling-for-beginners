@@ -1,0 +1,30 @@
+version: "3.3"
+services:
+  ssh-client:
+    image: lscr.io/linuxserver/openssh-server:latest
+  ssh-server:
+    image: lscr.io/linuxserver/openssh-server:latest
+    volumes:
+      - ./init-config:/config/custom-cont-init.d
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - PASSWORD_ACCESS=true
+      - USER_NAME=myuser
+      - USER_PASSWORD=password
+  some-server:
+    image: wbitt/network-multitool:alpine-extra
+  ssh-jumphost:
+    image: lscr.io/linuxserver/openssh-server:latest
+    volumes:
+      - ./init-config:/config/custom-cont-init.d
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - PASSWORD_ACCESS=true
+      - USER_NAME=myuser
+      - USER_PASSWORD=password
+  test-client:
+    image: wbitt/network-multitool:alpine-extra
