@@ -30,27 +30,56 @@ We have a local host, say "ssh-client", on which you can use ssh. And we have a 
 ssh myuser@ssh-server
 ----
 
-#TODO vertical instead of horizontal pictures#
-
 ----
-       ssh-client              ssh-server
-       ______________          __________________
-       |            |          |                |
-       |            | ------>  |                |
-       |____________|          |________________|
+
+       ______________
+       |            |
+       |            | ssh-client
+       |____________|
+
+             |
+             |  ssh connection
+             V
+       ______________
+       |            |
+       |            | ssh-server
+       |____________|
+
+
 ----
 
 Here, however, we will describe some simple variants of ssh-tunnelling. We can use the ssh-session involving the ssh-client and the ssh-server to tunnel traffic securely (in an encrypted way).
 
-Here is a depiction of the variant where the tunnel starts at the ssh-client and ends at the ssh-server:
+Here is a depiction:
 
 ----
-      ssh-client                ssh-server               final destination
-      ______________            __________________       __________________
-      |            |  ------->  |                |       |                |
- -->  o -    start |  tunnel    | end            | ----> |                |
-      |____________|  ------->  |________________|       |________________|
+                 port/socket
+                 opened by ssh
+               /
+              |
+              |
+       _______o________
+       |      |       |  ssh client
+       | tunnel start |  (or server)
+       |_____| |______|
+             | |
+             | |
+             | | ssh tunnel
+             | |
+       ______| |______
+       |     | |     |  ssh server
+       | tunnel end  |  (or client)
+       |______|______|
+              |
+              |
+              V
+       _______o_______
+       | final       |
+       | destination |
+       |_____________|
+
 ----
+
 
 == Understanding the command syntax
 
@@ -193,7 +222,7 @@ ssh -L localhost:9000:some-server:5000 -J myuser@ssh-jumphost myuser@ssh-server
 
 This does not affect where the tunnel starts or ends - it is the ssh-client and ssh-server that constitute the start and end of the tunnel.
 
-#TODO - will the tunnel traffic sort of "pass through" the jumphost?#
+#TODO - will the tunnel traffic sort of "pass through" the jumphost? Can this be elaborated on?#
 
 == Exercises
 
