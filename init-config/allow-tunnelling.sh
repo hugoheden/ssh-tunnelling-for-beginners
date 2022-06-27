@@ -10,5 +10,6 @@ sed -i 's/^AllowTcpForwarding no/AllowTcpForwarding yes # custom config/' /etc/s
 
 # Setting "Port 22" does not seem to have an effect!?
 sed -i 's/^#Port 22/Port 22/' /etc/ssh/sshd_config
-# ... so we hackishly port forward connections made to port 22 so that they end up on 2222:
+# ... so we hack it instead - port forward connections made to port 22 so that they end up on 2222.
+# ... this will make it look like ssh uses the regular port 22.
 nc -l -k -p 22 -e sh -c "nc 127.0.0.1 2222" &

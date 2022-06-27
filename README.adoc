@@ -154,62 +154,75 @@ ssh -nNT -L localhost:9000:some-host:5000 myuser@ssh-server
 
 == Exercises
 
-#TODO use http server and curl client in examples, to get rid of nc cruft#. Example server: nc -lk -p 5000 -e sh -c "echo 'HTTP/1.1 200 OK'; echo 'Connection: close'; echo ; echo 'hello' ; while read -t 0.01 IGNORED_INPUT ; do : ; done ; "
+We will use docker, docker-compose to set up some hosts, and experiment with various ssh-tunnels.
 
-
-We will set up some hosts, and experiment with various ssh-tunnels.
-
-* ssh-client - the host on which we will create various ssh-tunnels
-** also runs some server process that can act as final destination
+* `ssh-client` - the host on which we will create various ssh-tunnels
+** also runs a http server process that can act as final destination
 ** in some cases, we will try to "use" the ssh-tunnel from here
-* ssh-server - the server that will take part in tunnel creation
-** also runs some server process that can act as final destination
+* `ssh-server` - the ssh server that will take part in tunnel creation
+** also runs a http server process that can act as final destination
 ** in some cases, we will try to "use" the ssh-tunnel from here
-* some-server - a server that can act as final destination
+* `some-server` - a http server that can act as final destination
 * ssh-jumphost - a host that can be used as an ssh-jumphost
-* test-client - a host from which we can use ssh tunnels
+* `test-client` - a host from which we can use ssh tunnels
 ** in some cases, we will try to "use" the ssh-tunnel from here
 
 ----
 docker-compose up -d
-sh start.sh # start some server process that can act as final destination
+
+# start some http server process that can act as final destination:
+sh start.sh
 ----
 
-In a shell, "enter" the ssh-client.
+I might be convenient to open 4 terminals/shells:
+
+1. The main work shell: `docker-compose exec ssh-client bash` (used for _creating_ tunnels)
+2. `docker-compose exec ssh-client bash` (this shell can be used for _testing_ tunnels)
+3. `docker-compose exec test-client bash` (used for testing tunnels)
+4. `docker-compose exec ssh-server bash` (used for testing tunnels)
+
+In your (main work) shell, "enter" the ssh-client.
 ----
 docker-compose exec ssh-client bash
 
-# our environment with the docker-containers is weird,
-# ssh needs the -4 flag for tunnels to work..
+# our environment with the docker-containers is limited,
+# ssh needs the -4 flag. (Without it, there will be warning
+# messages emitted when creating tunnels, saying stuff like
+# "bind [::1]:9000: Address not available")
 alias ssh='ssh -4'
 ----
 
 Make a few simple sanity tests - these should all work:
 ----
 ssh myuser@ssh-server # password is "password"
+# exit the shell to get back to ssh-client
 ssh -J myuser@ssh-jumphost myuser@ssh-server
+# exit the shell to get back to ssh-client
 
-# Check that some server processes are running, by
-# connecting to them with our "client" (nc):
-echo | nc -v ssh-client:5000
-echo | nc -v ssh-server:5000
-echo | nc -v some-server:5000
+# Check that the http server processes are running, by connecting to them with curl:
+curl ssh-client:5000
+curl ssh-server:5000
+curl some-server:5000
+
+# Notice that the http servers respond with a message
+# indicating their host names. This will facilitate
+# our testing later.
 ----
 
 Ok, let's stay on ssh-client and create some tunnels.
 
 1. Use ssh to open port 9000 on ssh-client's localhost, and route traffic through tunnel to ssh-server, with final destination to ssh-server port 5000.
- * Test from ssh-client using `echo | nc -v localhost 9000`, response should indicate that ssh-server port 5000 has been reached.
- * Test from test-client using `echo | nc -v ssh-client 9000`. Should this work?
+ * Test from ssh-client using `curl localhost:9000`, response should indicate that ssh-server port 5000 has been reached.
+ * Test from test-client using `curl ssh-client:9000`. Should this work?
 
 2. Create the same tunnel, except that it can also be used from test-client.
- * Test from test-client using `echo | nc -v ssh-client 9000`, response should indicate that ssh-server port 5000 has been reached.
+ * Test from test-client using `curl ssh-client:9000`, response should indicate that ssh-server port 5000 has been reached.
 
 3. Create the same tunnel as in 1 but using ssh-jumphost as jump host.
  * Test like in 1.
 
 4. Create a tunnel that can be used to connect from test-client to some-server:5000 as final destination. The tunnel shall start at ssh-server port 9000, and shall pass through the jumphost, and end at ssh-client. #TODO make this work - config needed GatewayPorts clientspecified, currently set to no#
- * Test from test-client using `echo | nc -v ssh-server 9000`, response should indicate that some-server port 5000 has been reached.
+ * Test from test-client using `curl ssh-server:9000`, response should indicate that some-server port 5000 has been reached.
 
 Answers (the `-nNT` flags are optional):
 

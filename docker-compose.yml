@@ -14,7 +14,7 @@ services:
       - USER_NAME=myuser
       - USER_PASSWORD=password
   some-server:
-    image: wbitt/network-multitool:alpine-extra
+    image: lscr.io/linuxserver/openssh-server:latest
   ssh-jumphost:
     image: lscr.io/linuxserver/openssh-server:latest
     volumes:
@@ -27,4 +27,4 @@ services:
       - USER_NAME=myuser
       - USER_PASSWORD=password
   test-client:
-    image: wbitt/network-multitool:alpine-extra
+    image: lscr.io/linuxserver/openssh-server:latest
