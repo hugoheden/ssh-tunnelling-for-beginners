@@ -19,7 +19,7 @@ ssh -nNT -R 0.0.0.0:9000:some-server:5000 -J myuser@ssh-jumphost myuser@ssh-serv
 
 Prerequisites: Basic knowledge of ssh - how to log in etc.
 
-There are a few exercises with questions/answers too. There is also a docker-compose file setting up some hosts to use for experimentation. (Prerequisites: Have docker, docker-compose installed. Know some basic usage of them.)
+There are a few exercises with questions/answers too. There is also a docker-compose file setting up some hosts to use for experimentation. (Prerequisites: Have docker, docker-compose installed. Know some basic usage of them. Some basic understanding of what a http-server is and what the program curl does.)
 
 
 == ssh - client and server
@@ -193,6 +193,8 @@ ssh -L localhost:9000:some-server:5000 -J myuser@ssh-jumphost myuser@ssh-server
 
 This does not affect where the tunnel starts or ends - it is the ssh-client and ssh-server that constitute the start and end of the tunnel.
 
+#TODO - will the tunnel traffic sort of "pass through" the jumphost?#
+
 == Exercises
 
 === Preparations
@@ -256,7 +258,7 @@ curl some-server:5000
 
 === Questions and answers
 
-Ok, let's stay on ssh-client and create some tunnels.
+Ok, let's stay on ssh-client and create some tunnels. (Answers below.)
 
 1. Use ssh to open port 9000, and route traffic through a tunnel to ssh-server, with final destination to some-server on port 5000.
 * Test from ssh-client using `curl localhost:9000`, the response should indicate that some-server port 5000 has been reached.
