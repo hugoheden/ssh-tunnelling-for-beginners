@@ -4,7 +4,7 @@
 
 This document aims to teach how to understand ssh-tunnels intuitively, as well as the command syntax.
 
-The idea is that if you understand stuff, you will be able to remember it. So you will be able to really understand - and construct - various ssh-tunnel commands without searching the web, such as:
+The idea is that if you understand stuff, you will be able to remember it. So you will be able to really understand - and construct - various ssh-tunnel commands, perhaps without searching the web. Examples:
 
 ----
 # A common and quite simple variant
@@ -17,6 +17,12 @@ ssh -L localhost:9000:localhost:5000  myuser@ssh-server
 ssh -nNT -R 0.0.0.0:9000:some-server:5000 -J myuser@ssh-jumphost myuser@ssh-server
 ----
 
+There are a few questions/answers too.
+
+Prerequisites: Basic knowledge of ssh - how to log in etc.
+
+There is also a docker-compose file setting up some hosts to use for experimentation. (Prerequisite: Have docker, docker-compose installed. Know some basic usage of them.)
+
 == ssh - client and server
 
 We have a local host, say "ssh-client", on which you can use ssh. And we have a remote host, say "ssh-server", to which you can login using say "myuser" and "password". With regular ssh-usage, you would login from "ssh-client" to  "ssh-server" (and get a shell there) using:
@@ -24,6 +30,8 @@ We have a local host, say "ssh-client", on which you can use ssh. And we have a 
 ----
 ssh myuser@ssh-server
 ----
+
+#TODO vertical instead of horizontal pictures#
 
 ----
        ssh-client              ssh-server
@@ -37,8 +45,6 @@ Here, however, we will describe some simple variants of ssh-tunnelling. We can u
 
 Here is a depiction of the variant where the tunnel starts at the ssh-client and ends at the ssh-server:
 
-
-#TODO vertical instead of horizontal#
 ----
       ssh-client                ssh-server               final destination
       ______________            __________________       __________________
