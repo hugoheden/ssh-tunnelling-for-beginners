@@ -8,7 +8,7 @@ The idea is that if you understand stuff, you will be able to remember it. So yo
 
 ----
 # a common and quite simple variant
-ssh -L 9000:some-host:5000  myuser@ssh-server
+ssh -L 9000:some-server:5000  myuser@ssh-server
 
 # the most complex variant in this document
 ssh -nNT -R 0.0.0.0:9000:some-server:5000 -J myuser@ssh-jumphost myuser@ssh-server
@@ -68,26 +68,26 @@ Let's just look at an example. We want to:
 
 * let the _ssh-client_ open socket `localhost:9000` for listening
 * let ssh route the traffic through a "tunnel" to the ssh-server
-* and let the ssh-server route the traffic further to the final destination - `some-host:5000`:
+* and let the ssh-server route the traffic further to the final destination - `some-server:5000`:
 
 ----
-ssh -L localhost:9000:some-host:5000 myuser@ssh-server
+ssh -L localhost:9000:some-server:5000 myuser@ssh-server
 ----
 
 Another example:
 
 * let the _ssh-server_ open socket `localhost:9000` for listening
 * let ssh route the traffic through a tunnel to the ssh-client
-* and let the ssh-client route the traffic further to the final destination - `some-host:5000`:
+* and let the ssh-client route the traffic further to the final destination - `some-server:5000`:
 
 ----
-ssh -R localhost:9000:some-host:5000 myuser@ssh-server
+ssh -R localhost:9000:some-server:5000 myuser@ssh-server
 ----
 
 We can break down the command as follows:
 
 ----
-ssh -L localhost:9000:some-host:5000  myuser@ssh-server
+ssh -L localhost:9000:some-server:5000  myuser@ssh-server
     |________________|______________|
         |                  |
    specifies               |
@@ -122,8 +122,8 @@ In all examples so far, we have specified "localhost" as the bind address for th
 But we could also tell ssh to open a socket on all interfaces, not just the loop-back interface, by using `0.0.0.0` (an empty bind address) or `*`:
 
 ----
-ssh -L 0.0.0.0:9000:some-host:5000  myuser@ssh-server
-ssh -R 0.0.0.0:9000:some-host:5000  myuser@ssh-server
+ssh -L 0.0.0.0:9000:some-server:5000  myuser@ssh-server
+ssh -R 0.0.0.0:9000:some-server:5000  myuser@ssh-server
 ----
 
 Whether this works depends on ssh-configuration (an option named "GatewayPorts"). If it works, it allows connections from other hosts than the one that has the start of the ssh-tunnel to use the ssh-tunnel. If "localhost" is enough given the use-case at hand, it should probably be used (it might be considered more secure).
@@ -131,7 +131,7 @@ Whether this works depends on ssh-configuration (an option named "GatewayPorts")
 It is common to see the bind address specification left out:
 
 ----
-ssh -L 9000:some-host:5000  myuser@ssh-server
+ssh -L 9000:some-server:5000  myuser@ssh-server
 ----
 
 What this means (`localhost` or `0.0.0.0`) might depend on configuration (an option named "GatewayPorts"), but it is not uncommon for this to mean that "localhost" is implicitly used. (Some people prefer to spell it out in order to be more explicit.)
@@ -146,7 +146,7 @@ The end of the tunnel is not explicitly specified on the command line. It is imp
 
 == The final destination
 
-From the end of the tunnel, the traffic is then forwarded to the final destination. In the example above it is `some-host:5000`. So the final destination must (obviously) be reachable from the end of the tunnel.
+From the end of the tunnel, the traffic is then forwarded to the final destination. In the example above it is `some-server:5000`. So the final destination must (obviously) be reachable from the end of the tunnel.
 
 Note also that what is specified on the command line as "the final destination" is _interpreted by the end of the tunnel_, not at the start of the tunnel. This is significant, for example in the quite typical case where we specify `localhost` as the final destination. Consider a `-L`-tunnel, where we want the final destination to be the same host as the end of the tunnel, the ssh-server. So, we want the final destination to be something like `ssh-server:5000`. We can specify that as `localhost:5000`:
 
@@ -165,7 +165,7 @@ From https://blog.trackets.com/2014/05/17/ssh-tunnel-local-and-remote-port-forwa
 _You might have noticed that every time we create a tunnel you also SSH into the server and get a shell. This isn’t usually necessary, as you’re just trying to create a tunnel. To avoid this we can run SSH with the -nNT flags, such as the following, which will cause SSH to not allocate a tty and only do the port forwarding._
 
 ----
-ssh -nNT -L localhost:9000:some-host:5000 myuser@ssh-server
+ssh -nNT -L localhost:9000:some-server:5000 myuser@ssh-server
 ----
 
 == Jump-hosts
@@ -179,7 +179,7 @@ ssh -J myuser@ssh-jumphost myuser@ssh-server
 This creates a pretty much regular ssh-session between the ssh-client and ssh-server. And ssh-tunnels can be created as per usual, for example:
 
 ----
-ssh -L localhost:9000:some-host:5000 -J myuser@ssh-jumphost myuser@ssh-server
+ssh -L localhost:9000:some-server:5000 -J myuser@ssh-jumphost myuser@ssh-server
 ----
 
 This does not affect where the tunnel starts or ends - it is the ssh-client and ssh-server that constitute the end of the tunnel as per usual.
