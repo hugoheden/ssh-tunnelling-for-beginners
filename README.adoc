@@ -185,7 +185,7 @@ We will use docker, docker-compose to set up some hosts, and experiment with var
 docker-compose up -d
 
 #start some http server processes that can act as final destination:
-sh start.sh
+sh start-some-server-processes.sh
 ----
 
 I might be convenient to open 4 terminals/shells:
@@ -235,7 +235,7 @@ Ok, let's stay on ssh-client and create some tunnels.
 3. Create the same tunnel as in 1 but using ssh-jumphost as jump host.
  * Test like in 1.
 
-4. Create a tunnel that can be used to connect from test-client to some-server:5000 as final destination. The tunnel shall start at ssh-server port 9000, and shall pass through the jumphost, and end at ssh-client. #TODO make this work - config needed GatewayPorts clientspecified, currently set to no#
+4. Create a tunnel that can be used to connect from test-client to some-server:5000 as final destination. The tunnel shall start at ssh-server port 9000, and shall pass through the jumphost, and end at ssh-client.
  * Test from test-client using `curl ssh-server:9000`, response should indicate that some-server port 5000 has been reached.
 
 Answers (the `-nNT` flags are optional):

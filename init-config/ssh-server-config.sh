@@ -1,7 +1,10 @@
 #!/bin/sh
 
+# Allow tunnelling. (Or else, our exercises will be broken and useless)
 sed -i 's/^AllowTcpForwarding no/AllowTcpForwarding yes # custom config/' /etc/ssh/sshd_config
 
+# For -R tunnels, allow the ssh-server to open ports on 0.0.0.0 (rather than just 127.0.0.1)
+sed -i 's/^GatewayPorts no/GatewayPorts clientspecified/' /etc/ssh/sshd_config
 
 # The image we are using configures sshd to listen to port 2222.
 
