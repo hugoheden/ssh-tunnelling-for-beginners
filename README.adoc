@@ -108,7 +108,6 @@ ssh -L 0.0.0.0:9000:some-host:5000  myuser@ssh-server
 ssh -R 0.0.0.0:9000:some-host:5000  myuser@ssh-server
 ----
 
-#TODO double check this#
 Whether this works depends on ssh-configuration (an option named "GatewayPorts"). If it works, it allows connections from other hosts than the one that has the start of the ssh-tunnel to use the ssh-tunnel. If "localhost" is enough given the use-case at hand, it should probably be used (it might be considered more secure).
 
 It is common to see the bind address specification left out:
@@ -153,7 +152,19 @@ ssh -nNT -L localhost:9000:some-host:5000 myuser@ssh-server
 
 == Jump-hosts
 
-#TODO#
+In many corporate environments, administrators may require that when you ssh from your machine to various other machines, you must pass through some jumphost. For example like this:
+
+----
+ssh -J myuser@ssh-jumphost myuser@ssh-server
+----
+
+This creates a pretty much regular ssh-session between the ssh-client and ssh-server. And ssh-tunnels can be created as per usual, for example:
+
+----
+ssh -L localhost:9000:some-host:5000 -J myuser@ssh-jumphost myuser@ssh-server
+----
+
+This does not affect where the tunnel starts or ends - it is the ssh-client and ssh-server that constitute the end of the tunnel as per usual.
 
 == Exercises
 
@@ -173,7 +184,7 @@ We will use docker, docker-compose to set up some hosts, and experiment with var
 ----
 docker-compose up -d
 
-# start some http server process that can act as final destination:
+#start some http server processes that can act as final destination:
 sh start.sh
 ----
 
