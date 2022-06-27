@@ -17,11 +17,10 @@ ssh -L localhost:9000:localhost:5000  myuser@ssh-server
 ssh -nNT -R 0.0.0.0:9000:some-server:5000 -J myuser@ssh-jumphost myuser@ssh-server
 ----
 
-There are a few questions/answers too.
-
 Prerequisites: Basic knowledge of ssh - how to log in etc.
 
-There is also a docker-compose file setting up some hosts to use for experimentation. (Prerequisite: Have docker, docker-compose installed. Know some basic usage of them.)
+There are a few exercises with questions/answers too. There is also a docker-compose file setting up some hosts to use for experimentation. (Prerequisites: Have docker, docker-compose installed. Know some basic usage of them.)
+
 
 == ssh - client and server
 
@@ -116,7 +115,7 @@ So, for example:
 
 * `ssh -L localhost:9000:...` - the local ssh-client opens a socket on its localhost.
 
-* `ssh -R localhost:9000:...` - the remote ssh-server opens a socket on _its_ localhost. (Yes, note the term "localhost" - in this particular context it is interpreted by the party that is instructed to create the start of the tunnel, which here is the remote ssh-server.)
+* `ssh -R localhost:9000:...` - the remote ssh-server opens a socket on _its_ localhost. (Yes, note the "localhost" - in this context it is interpreted by the party that is instructed to create the start of the tunnel, which here is the remote ssh-server. When typing the command one might be misled to think that anything saying "localhost" would refer to the host where the command is invoked - the ssh-client - but that is not the case.)
 
 We can also note that this whole thing is sometimes referred to as "port-forwarding":
 
@@ -124,7 +123,7 @@ We can also note that this whole thing is sometimes referred to as "port-forward
 
 * `ssh -R`: "Remote" - **Remote port forwarding**.
 
-In all examples so far, we have specified "localhost" as the bind address for the socket (the start of the tunnel). "localhost" is an alias for `127.0.0.1`, the loop-back interface. Doing so, we allow connections only from the same host. That is, we allow connections only from ssh-client (if using `-L`) or ssh-server (if using `-R`).
+In all examples so far, we have specified "localhost" as the bind address for the socket (the start of the tunnel). "localhost" is an alias for `127.0.0.1`, the loop-back interface. Doing so, we allow connections only from the same host. That is, we allow connections only from ssh-client itself (if using `-L`) or ssh-server itself (if using `-R`).
 
 But we could also tell ssh to open a socket on all interfaces, not just the loop-back interface, by using `0.0.0.0` (an empty bind address) or `*`:
 
@@ -135,7 +134,7 @@ ssh -R 0.0.0.0:9000:some-server:5000  myuser@ssh-server
 
 Whether this is allowed depends on ssh-configuration (an option named "GatewayPorts"). If it works, it allows connections from other hosts (than the start of the tunnel) to use the ssh-tunnel.
 
-Note: If "localhost" is enough given the use-case at hand, it should probably be used (it might be considered more secure).
+Note: If "localhost" is enough given the use-case at hand, it should probably be used. (It might be considered more secure, since it does not allow inbound connections from other hosts).
 
 It is common to see the bind address specification left out:
 
@@ -143,7 +142,7 @@ It is common to see the bind address specification left out:
 ssh -L 9000:some-server:5000  myuser@ssh-server
 ----
 
-What this means (`localhost` or `0.0.0.0`) might depend on configuration (an option named "GatewayPorts"), but it is not uncommon for this to mean that "localhost" is implicitly used. (Some people prefer to spell it out in order to be more explicit.)
+What this means (`localhost:9000` or `0.0.0.0:9000`) might depend on configuration (an option named "GatewayPorts"), but it is not uncommon for this to mean that "localhost" is implicitly used. (Some people prefer to spell it out in order to be more explicit.)
 
 == The end of the tunnel
 
@@ -196,6 +195,8 @@ This does not affect where the tunnel starts or ends - it is the ssh-client and 
 
 == Exercises
 
+=== Preparations
+
 We will use docker and docker-compose to set up some hosts to experiment with.
 
 * `ssh-client` - the host on which we will create various ssh-tunnels
@@ -236,7 +237,8 @@ alias ssh='ssh -4'
 
 Make a few simple sanity tests - these should all work:
 ----
-ssh myuser@ssh-server # password is "password"
+ssh myuser@ssh-server
+# password is "password"
 # exit the shell to get back to ssh-client
 
 ssh -J myuser@ssh-jumphost myuser@ssh-server
@@ -252,28 +254,36 @@ curl some-server:5000
 # our testing.
 ----
 
+=== Questions and answers
+
 Ok, let's stay on ssh-client and create some tunnels.
 
-1. Use ssh to open port 9000 on ssh-client's localhost, and route traffic through a tunnel to ssh-server, with final destination to ssh-server itself on port 5000.
- * Test from ssh-client using `curl localhost:9000`, the response should indicate that ssh-server port 5000 has been reached.
- * Test from test-client using `curl ssh-client:9000`. Should this work?
+1. Use ssh to open port 9000, and route traffic through a tunnel to ssh-server, with final destination to some-server on port 5000.
+* Test from ssh-client using `curl localhost:9000`, the response should indicate that some-server port 5000 has been reached.
+* Test from test-client using `curl ssh-client:9000`. Should this work?
 
 2. Create the same tunnel, except that it can also be used from test-client.
- * Test from test-client using `curl ssh-client:9000`, the response should indicate that ssh-server port 5000 has been reached.
+* Test from ssh-client using `curl localhost:9000`, the response should indicate that some-server port 5000 has been reached.
+* Test from test-client using `curl ssh-client:9000`, the response should indicate that ssh-server port 5000 has been reached.
 
-3. Create the same tunnel as in 1 but using ssh-jumphost as jump host.
- * Test like in 1.
+3. Use ssh to open port 9000 on ssh-client's localhost, and route traffic through a tunnel to ssh-server, with final destination to ssh-server itself on port 5000.
+ * Test from ssh-client using `curl localhost:9000`, the response should indicate that ssh-server port 5000 has been reached.
 
-4. Create a tunnel that can be used to connect from test-client to some-server:5000 as final destination. The tunnel shall start at ssh-server port 9000, and shall pass through the jumphost, and end at ssh-client.
+4. Create the same tunnel as in 1 but using ssh-jumphost as jump host.
+ * Test like in 3.
+
+5. Create a tunnel that can be used to connect from test-client to some-server:5000 as final destination. The tunnel shall start at ssh-server port 9000, and shall pass through the jumphost, and end at ssh-client.
  * Test from test-client using `curl ssh-server:9000`, response should indicate that some-server port 5000 has been reached.
 
 Answers (the `-nNT` flags are optional):
 
-1. `ssh -nNT -L localhost:9000:localhost:5000 myuser@ssh-server`.
- * Testing from test-client should not work, because the socket on ssh-client's loop-back interface can only be reached from ssh-client itself.
+1. `ssh -nNT -L localhost:9000:some-server:5000 myuser@ssh-server`
+* Testing from test-client should not work, because the socket on ssh-client's loop-back interface can only be reached from ssh-client itself.
 
-2. `ssh -nNT -L 0.0.0.0:9000:localhost:5000 myuser@ssh-server`.
+2. `ssh -nNT -L 0.0.0.0:9000:some-server:5000 myuser@ssh-server`
 
-3. `ssh -nNT -L localhost:9000:localhost:5000 -J myuser@ssh-jumphost myuser@ssh-server`
+3. `ssh -nNT -L localhost:9000:localhost:5000 myuser@ssh-server`
 
-4. `ssh -nNT -R 0.0.0.0:9000:some-server:5000 -J myuser@ssh-jumphost myuser@ssh-server`
+4. `ssh -nNT -L localhost:9000:localhost:5000 -J myuser@ssh-jumphost myuser@ssh-server`.
+
+5. `ssh -nNT -R 0.0.0.0:9000:some-server:5000 -J myuser@ssh-jumphost myuser@ssh-server`
