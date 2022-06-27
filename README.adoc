@@ -3,7 +3,11 @@
 
 == What you will learn
 
-This document aims to teach how to understand ssh-tunnels intuitively, as well as the command syntax.
+This document aims to teach how to understand ssh-tunnels reasonably well intuitively, including the command structure.
+
+====
+Disclaimer: I am not an expert. Welcome to provide feedback! (Post an https://github.com/hugoheden/ssh-tunnelling-for-beginners/issues[Issue], for example.) Any typos? Any technical terms used incorrectly?
+====
 
 The idea is that if you understand stuff, you will be able to remember it. So you will be able to really understand - and construct - various ssh-tunnel commands, perhaps without searching the web. Examples:
 
@@ -125,7 +129,7 @@ We can break down the command as follows:
 
 ----
 ssh -L localhost:9000:some-server:5000  myuser@ssh-server
-    |________________|______________|
+    |________________|________________|
         |                  |
    specifies               |
    the start of            |
