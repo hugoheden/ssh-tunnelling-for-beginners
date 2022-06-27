@@ -1,4 +1,5 @@
 = ssh tunnels - for beginners
+:toc:
 
 == What you will learn
 
@@ -21,6 +22,7 @@ Prerequisites: Basic knowledge of ssh - how to log in etc.
 
 There are a few exercises with questions/answers too. There is also a docker-compose file setting up some hosts to use for experimentation. (Prerequisites: Have docker, docker-compose installed. Know some basic usage of them. Some basic understanding of what a http-server is and what the program curl does.)
 
+Keywords: ssh, tunnel, port-forwarding, local port-forwarding, remote port-forwarding, tutorial, explainer
 
 == ssh - client and server
 
@@ -81,7 +83,7 @@ Here is a depiction:
 ----
 
 
-== Understanding the command syntax
+== Understanding the command structure
 
 An ssh tunnel can be created with the `-L` (Local) or `-R` (Remote) flag.
 
@@ -89,7 +91,7 @@ An ssh tunnel can be created with the `-L` (Local) or `-R` (Remote) flag.
 
 * The _end_ of the tunnel will (obviously) be on the _opposite_ side of the ssh-connection (with `-L` at the ssh-server, with `-R` at the ssh-client.)
 
-* Aside from the start of the tunnel and the end of the tunnel, there is a third party involved too: _The final destination_. Sometimes, this is the same host as the end of the tunnel.
+* Aside from the start of the tunnel and the end of the tunnel, there is a third party involved too: _The final destination_. (Oftentimes, this is the same host as the end of the tunnel.)
 
 So, we have three parties involved:
 
@@ -132,7 +134,17 @@ ssh -L localhost:9000:some-server:5000  myuser@ssh-server
                         destination
 ----
 
-== The start of the tunnel
+This is pretty much the gist of this document. If you are in a hurry, you can stop reading now.
+
+== The three (3) involved hosts
+
+We will continue with some details regarding:
+
+* The start of the tunnel
+* The end of the tunnel
+* The final destination
+
+=== The start of the tunnel
 
 The start of the tunnel is constituted by a socket opened by ssh for listening.
 
@@ -142,9 +154,9 @@ The start of the tunnel is constituted by a socket opened by ssh for listening.
 
 So, for example:
 
-* `ssh -L localhost:9000:...` - the local ssh-client opens a socket on its localhost.
+* `ssh -L localhost:9000:...` - the local ssh-client opens a socket, port 9000 on its localhost.
 
-* `ssh -R localhost:9000:...` - the remote ssh-server opens a socket on _its_ localhost. (Yes, note the "localhost" - in this context it is interpreted by the party that is instructed to create the start of the tunnel, which here is the remote ssh-server. When typing the command one might be misled to think that anything saying "localhost" would refer to the host where the command is invoked - the ssh-client - but that is not the case.)
+* `ssh -R localhost:9000:...` - the remote ssh-server opens a socket, port 9000 on _its_ localhost. (Yes, note the "localhost" - in this context it is interpreted by the party that is instructed to create the start of the tunnel, which here is the remote ssh-server. When typing the command one might be misled to think that anything saying "localhost" would refer to the host where the command is invoked - the ssh-client - but that is not the case.)
 
 We can also note that this whole thing is sometimes referred to as "port-forwarding":
 
@@ -173,7 +185,7 @@ ssh -L 9000:some-server:5000  myuser@ssh-server
 
 What this means (`localhost:9000` or `0.0.0.0:9000`) might depend on configuration (an option named "GatewayPorts"), but it is not uncommon for this to mean that "localhost" is implicitly used. (Some people prefer to spell it out in order to be more explicit.)
 
-== The end of the tunnel
+=== The end of the tunnel
 
 The end of the tunnel is *not really explicitly specified on the command line*. It is implicitly determined as the being at opposite side from the start of the tunnel (obviously):
 
@@ -181,7 +193,7 @@ The end of the tunnel is *not really explicitly specified on the command line*. 
 
 * `ssh -R`: "Remote" - it is the ssh-server that opens the socket, **so the "end" of the tunnel is at the ssh-client**.
 
-== The final destination
+=== The final destination
 
 From the end of the tunnel, the traffic is then forwarded to the final destination. In the example above it is `some-server:5000`. So the final destination must (obviously) be reachable from the end of the tunnel.
 
