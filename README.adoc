@@ -33,7 +33,7 @@ ssh myuser@ssh-server
        |____________|          |________________|
 ----
 
-Here, however, we will describe some simple variants of ssh-tunnelling. We can use the ssh-session involving the ssh-client and the ssh-server to tunnel traffic in an encrypted way.
+Here, however, we will describe some simple variants of ssh-tunnelling. We can use the ssh-session involving the ssh-client and the ssh-server to tunnel traffic securely (in an encrypted way).
 
 Here is a depiction of the variant where the tunnel starts at the ssh-client and ends at the ssh-server:
 
@@ -68,7 +68,7 @@ So, we have three parties involved:
 Let's just look at an example. We want to:
 
 * let the _ssh-client_ open socket `localhost:9000` for listening
-* let ssh route the traffic through a "tunnel" to the ssh-server
+* let ssh route the traffic through a tunnel to the ssh-server
 * and let the ssh-server route the traffic further to the final destination - `some-server:5000`:
 
 ----
@@ -110,7 +110,7 @@ So, for example:
 
 * `ssh -L localhost:9000:...` - the local ssh-client opens a socket on its localhost.
 
-* `ssh -R localhost:9000:...` - the remote ssh-server opens a socket on _its_ localhost. (Yes, note that the term "localhost" is interpreted by the party that is instructed to create the start of the tunnel - which here is the remote ssh-server.)
+* `ssh -R localhost:9000:...` - the remote ssh-server opens a socket on _its_ localhost. (Yes, note the term "localhost" - in this particular context it is interpreted by the party that is instructed to create the start of the tunnel, which here is the remote ssh-server.)
 
 We can also note that this whole thing is sometimes referred to as "port-forwarding":
 
@@ -127,7 +127,9 @@ ssh -L 0.0.0.0:9000:some-server:5000  myuser@ssh-server
 ssh -R 0.0.0.0:9000:some-server:5000  myuser@ssh-server
 ----
 
-Whether this works depends on ssh-configuration (an option named "GatewayPorts"). If it works, it allows connections from other hosts than the one that has the start of the ssh-tunnel to use the ssh-tunnel. If "localhost" is enough given the use-case at hand, it should probably be used (it might be considered more secure).
+Whether this is allowed depends on ssh-configuration (an option named "GatewayPorts"). If it works, it allows connections from other hosts (than the start of the tunnel) to use the ssh-tunnel.
+
+Note: If "localhost" is enough given the use-case at hand, it should probably be used (it might be considered more secure).
 
 It is common to see the bind address specification left out:
 
@@ -139,7 +141,7 @@ What this means (`localhost` or `0.0.0.0`) might depend on configuration (an opt
 
 == The end of the tunnel
 
-The end of the tunnel is not explicitly specified on the command line. It is implicitly determined as the being at opposite side from the start of the tunnel (obviously):
+The end of the tunnel is *not really explicitly specified on the command line*. It is implicitly determined as the being at opposite side from the start of the tunnel (obviously):
 
 * `ssh -L`: "Local" - it is the ssh-client that opens the socket, **so the "end" of the tunnel is at the ssh-server**.
 
@@ -149,16 +151,17 @@ The end of the tunnel is not explicitly specified on the command line. It is imp
 
 From the end of the tunnel, the traffic is then forwarded to the final destination. In the example above it is `some-server:5000`. So the final destination must (obviously) be reachable from the end of the tunnel.
 
-Note also that what is specified on the command line as "the final destination" is _interpreted by the end of the tunnel_, not at the start of the tunnel. This is significant, for example in the quite typical case where we specify `localhost` as the final destination. Consider a `-L`-tunnel, where we want the final destination to be the same host as the end of the tunnel, the ssh-server. So, we want the final destination to be something like `ssh-server:5000`. We can specify that as `localhost:5000`:
+Note also that what is specified on the command line as "the final destination" is _interpreted by the end of the tunnel_, not at the start of the tunnel. This is significant, for example in the quite typical case where we specify `localhost` as the final destination.
+
+Consider for example a `-L`-tunnel, where we want the final destination to be the same host as the end of the tunnel, that is the ssh-server. So, we want the final destination to be something like `ssh-server:5000`. We can specify that as `localhost:5000`:
 
 ----
 ssh -L localhost:9000:localhost:5000  myuser@ssh-server
 ----
 
-So, have specified that the tunnel should start at `localhost:9000`. This "localhost" is the loopback interface at the _start_ of the tunnel. (For a `-L` tunnel it is the ssh-client). And then we have specified that the final destination should be `localhost:5000`. This "localhost" is the loopback interface at the _end_ of the tunnel. (For a `-L` tunnel it is the ssh-server).
+Note that the two `localhost` here refer to two different hosts. We have specified that the tunnel should start at `localhost:9000`. This "localhost" is the loopback interface at the _start_ of the tunnel. (For a `-L` tunnel it is the ssh-client). And then we have specified that the _final destination_ should be `localhost:5000`. This is interpreted by the _end_ of the tunnel, so "localhost" is the loopback interface at the end of the tunnel. (For a `-L` tunnel it is the ssh-server).
 
-(When typing the command, one could easily be misled to think that anything saying "localhost" refers to the host where you are sitting - the ssh-client. But as we see here, this is not necessarily the case.)
-
+When typing the command, one could easily be misled to think that anything saying "localhost" refers to the host where you are sitting - the ssh-client. But as we see here, this is not necessarily the case.
 
 == Skipping the shell
 
@@ -183,11 +186,11 @@ This creates a pretty much regular ssh-session between the ssh-client and ssh-se
 ssh -L localhost:9000:some-server:5000 -J myuser@ssh-jumphost myuser@ssh-server
 ----
 
-This does not affect where the tunnel starts or ends - it is the ssh-client and ssh-server that constitute the end of the tunnel as per usual.
+This does not affect where the tunnel starts or ends - it is the ssh-client and ssh-server that constitute the start and end of the tunnel.
 
 == Exercises
 
-We will use docker, docker-compose to set up some hosts, and experiment with various ssh-tunnels.
+We will use docker and docker-compose to set up some hosts to experiment with.
 
 * `ssh-client` - the host on which we will create various ssh-tunnels
 ** also runs a http server process that can act as final destination
@@ -229,6 +232,7 @@ Make a few simple sanity tests - these should all work:
 ----
 ssh myuser@ssh-server # password is "password"
 # exit the shell to get back to ssh-client
+
 ssh -J myuser@ssh-jumphost myuser@ssh-server
 # exit the shell to get back to ssh-client
 
@@ -239,17 +243,17 @@ curl some-server:5000
 
 # Notice that the http servers respond with a message
 # indicating their host names. This will facilitate
-# our testing later.
+# our testing.
 ----
 
 Ok, let's stay on ssh-client and create some tunnels.
 
-1. Use ssh to open port 9000 on ssh-client's localhost, and route traffic through tunnel to ssh-server, with final destination to ssh-server port 5000.
- * Test from ssh-client using `curl localhost:9000`, response should indicate that ssh-server port 5000 has been reached.
+1. Use ssh to open port 9000 on ssh-client's localhost, and route traffic through a tunnel to ssh-server, with final destination to ssh-server itself on port 5000.
+ * Test from ssh-client using `curl localhost:9000`, the response should indicate that ssh-server port 5000 has been reached.
  * Test from test-client using `curl ssh-client:9000`. Should this work?
 
 2. Create the same tunnel, except that it can also be used from test-client.
- * Test from test-client using `curl ssh-client:9000`, response should indicate that ssh-server port 5000 has been reached.
+ * Test from test-client using `curl ssh-client:9000`, the response should indicate that ssh-server port 5000 has been reached.
 
 3. Create the same tunnel as in 1 but using ssh-jumphost as jump host.
  * Test like in 1.
