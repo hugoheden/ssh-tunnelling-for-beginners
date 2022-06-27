@@ -1,5 +1,23 @@
 = ssh tunnels - for beginners
 
+== What you will learn
+
+This document aims to teach how to understand ssh-tunnels intuitively, as well as the command syntax.
+
+The idea is that if you understand stuff, you will be able to remember it. So you will be able to really understand - and construct - various ssh-tunnel commands without searching the web, such as:
+
+----
+# a common and quite simple variant
+ssh -L 9000:some-host:5000  myuser@ssh-server
+
+# the most complex variant in this document
+ssh -nNT -R 0.0.0.0:9000:some-server:5000 -J myuser@ssh-jumphost myuser@ssh-server
+----
+
+
+
+== ssh - client and server
+
 We have a local host, say "ssh-client", on which you can use ssh. And we have a remote host, say "ssh-server", to which you can login using say "myuser" and "password". With regular ssh-usage, you would login from "ssh-client" to  "ssh-server" (and get a shell there) using:
 
 ----
