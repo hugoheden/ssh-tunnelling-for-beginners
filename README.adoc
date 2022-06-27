@@ -42,11 +42,11 @@ ssh myuser@ssh-server
        |            |
        |            | ssh-client
        |____________|
-
+             |
              |
              |  ssh connection
              V
-       ______________
+       ______o_______
        |            |
        |            | ssh-server
        |____________|
@@ -253,7 +253,7 @@ We will use docker and docker-compose to set up some hosts to experiment with.
 ** also runs a http server process (port 5000) that can act as final destination
 ** in some cases, we will try to "use" the ssh-tunnel from here
 * `some-server` - runs a http server (port 5000) that can act as final destination
-* ssh-jumphost - a host that can be used as an ssh-jumphost
+* `ssh-jumphost` - a host that can be used as an ssh-jumphost
 * `test-client` - a host from which we can use ssh tunnels
 ** in some cases, we will try to "use" the ssh-tunnel from here
 
@@ -323,7 +323,7 @@ Ok, let's stay on ssh-client and create some tunnels. (Answers below.)
 Answers (the `-nNT` flags are optional):
 
 1. `ssh -nNT -L localhost:9000:some-server:5000 myuser@ssh-server`
-* Testing from test-client should not work, because the socket on ssh-client's loop-back interface can only be reached from ssh-client itself.
+* Testing from test-client should not work. The socket on ssh-client (`localhost:9000`) is created on loop-back interface (`localhost`), so it can only be reached from ssh-client itself.
 
 2. `ssh -nNT -L 0.0.0.0:9000:some-server:5000 myuser@ssh-server`
 
