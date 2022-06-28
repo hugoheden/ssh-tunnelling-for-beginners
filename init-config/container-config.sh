@@ -28,3 +28,4 @@ nc -l -k -p 5000 -e sh -c \
 # test that the http-server works
 sleep 1
 curl -s --fail localhost:5000
+
